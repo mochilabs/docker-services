@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  portainer-ce:
+    # Official portainer-ce image
+    image: portainer/portainer-ce:latest
+    ports:
+      # TCP tunnel port that portainer will communicate with edge agents
+      - "8000:8000"
+      # Portainer web ui port (https)
+      - "9443:9443"
+    volumes:
+      # Portainer will communicate with docker daemon of host machine
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Portainer data volume
+      - portainer_data:/data
+    restart: always
+volumes:
+  portainer_data:
