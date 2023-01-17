@@ -11,7 +11,7 @@ services:
       - "traefik.http.routers.traefik-https.entrypoints=web"
       # - "traefik.http.routers.traefik-https.tls=true"
       # - "traefik.http.routers.traefik-https.tls.certresolver=myresolver"
-      - "traefik.http.routers.traefik-https.service=api@internal"
+      - "traefik.http.routers.traefik-https.service=dashboard@internal"
       - "traefik.http.routers.traefik-https.middlewares=traefik-https-auth"
       - "traefik.http.middlewares.traefik-https-auth.basicauth.users=${TRAEFIK_AUTH_USER}:${TRAEFIK_AUTH_PASS}"
     # Traefik health check
