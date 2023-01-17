@@ -4,6 +4,14 @@ services:
   traefik-proxy:
     # The official v2 Traefik docker image
     image: traefik:v2.9
+    # Web ui tls
+    labels:
+      - "traefik.enable: true"
+      - "traefik.http.routers.traefik_https.rule=Host(`traefik.cocochino.cafe`)"
+      - "traefik.http.routers.traefik_https.entrypoints=websecure"
+      - "traefik.http.routers.traefik_https.tls=true"
+      - "traefik.http.routers.traefik_https.tls.certresolver=traefik_resolver"
+      - "traefik.http.routers.traefik_https.service=api@internal"
     # Traefik health check
     healthcheck:
       test: wget --quiet --tries=1 --spider http://ping.127.0.0.1.nip.io/ping || exit 1
@@ -16,6 +24,7 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --api.insecure=true
+      - --dashboard=true
       - --providers.docker
     ports:
       # The HTTP port
