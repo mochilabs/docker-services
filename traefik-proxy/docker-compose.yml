@@ -4,6 +4,13 @@ services:
   traefik-proxy:
     # The official v2 Traefik docker image
     image: traefik:v2.9
+    # Traefik health check
+    healthcheck:
+      test: wget --quiet --tries=1 --spider http://ping.127.0.0.1.nip.io/ping || exit 1
+      interval: 10s
+      timeout: 1s
+      retries: 3
+      start_period: 10s
     # Enables the web UI and tells Traefik to listen to docker
     command:
       - --entrypoints.web.address=:80
@@ -20,3 +27,4 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
