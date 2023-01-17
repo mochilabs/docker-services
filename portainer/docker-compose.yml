@@ -6,8 +6,8 @@ services:
     labels:
       # Portainer Frontend
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`portainer.cocochino.cafe`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.cocochino.cafe`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
     
     # Official portainer-ce image
     image: portainer/portainer-ce:latest
