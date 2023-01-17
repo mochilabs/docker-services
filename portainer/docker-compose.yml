@@ -2,6 +2,13 @@ version: '3'
 
 services:
   portainer-ce:
+    # Traefik reverse proxy will handle https traffic and redirect to portainer web ui
+    labels:
+      # Portainer Frontend
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`portainer.cocochino.cafe`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+    
     # Official portainer-ce image
     image: portainer/portainer-ce:latest
     ports:
