@@ -6,12 +6,14 @@ services:
     image: traefik:v2.9
     # Web ui tls
     labels:
-      traefik.enable: true
-      traefik.http.routers.traefik_https.rule: Host(`traefik.cocochino.cafe`)
-      traefik.http.routers.traefik_https.entrypoints: websecure
-      traefik.http.routers.traefik_https.tls: true
-      traefik.http.routers.traefik_https.tls.certresolver: traefik_resolver
-      traefik.http.routers.traefik_https.service: api@internal
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik_https.rule=Host(`traefik.cocochino.cafe`)"
+      - "traefik.http.routers.traefik_https.entrypoints=websecure"
+      - "traefik.http.routers.traefik_https.tls=true"
+      - "traefik.http.routers.traefik_https.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik_https.service=api@internal"
+      - "traefik.http.routers.traefik_https.middlewares=traefik_https_auth"
+      - "traefik.http.middlewares.traefik_https_auth.basicauth.users=${TRAEFIK_AUTH_USER}:${TRAEFIK_AUTH_PASS}"
     # Traefik health check
     healthcheck:
       test: wget --quiet --tries=1 --spider http://ping.127.0.0.1.nip.io/ping || exit 1
@@ -19,8 +21,17 @@ services:
       timeout: 1s
       retries: 3
       start_period: 10s
+    # .env file for traefik
+    env_file:
+      - .env
     # Enables the web UI and tells Traefik to listen to docker
     command:
+      # Lets encrypt cert resolver
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # Traefik address, secure address
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --api.insecure=true
@@ -36,4 +47,6 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
+      # Lets encrypt
+      - ./letsencrypt:/letsencrypt
     restart: always
