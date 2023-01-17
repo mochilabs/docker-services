@@ -24,7 +24,7 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --api.insecure=true
-      - --dashboard=true
+      - --api.dashboard=true
       - --providers.docker
     ports:
       # The HTTP port
