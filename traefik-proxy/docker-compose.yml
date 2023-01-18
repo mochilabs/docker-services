@@ -24,10 +24,10 @@ services:
       - --api.dashboard=true
       - --providers.docker
       # Lets encrypt cert resolver
+      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-v02.api.letsencrypt.org/directory"
-      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
     ports:
       # The HTTP port
@@ -41,7 +41,7 @@ services:
       # Enable Traefik
       traefik.enable: true
       # Router traefik dashboard
-      traefik.http.routers.traefik.rule: Host(`traefik.cocochino.cafe`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+      traefik.http.routers.traefik.rule: Host(`traefik.cocochino.cafe`) && PathPrefix(`/api`, `/dashboard`)
       traefik.http.routers.traefik.entrypoints: websecure
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.tls.certresolver: letsencrypt
