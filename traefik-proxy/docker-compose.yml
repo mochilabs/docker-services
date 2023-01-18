@@ -6,7 +6,7 @@ services:
     image: traefik:v2.9
     # Traefik health check
     healthcheck:
-      test: wget --quiet --tries=1 --spider https://traefik.${ROOT_DOMAIN}/api/rawdata || exit 1
+      test: ['CMD', 'traefik', 'healthcheck', '--ping']
       interval: 10s
       timeout: 1s
       retries: 3
@@ -23,6 +23,7 @@ services:
       # Enable traefik dashboard
       - --api.dashboard=true
       - --api.insecure=true
+      - --ping=true
       # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
@@ -56,24 +57,20 @@ services:
       # Enable Traefik
       traefik.enable: true
       # Traefik dashboard
-      # Entrypoints
-      traefik.http.routers.dashboard.entrypoints: websecure
-      traefik.http.routers.api.entrypoints: websecure
-      # Middleware
       traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
       # Dashboard & Api Rule, Service
-      traefik.http.routers.dashboard.rule: Host(`traefik.cocochino.cafe`)
-      traefik.http.routers.dashboard.service: dashboard@internal
-      traefik.http.routers.api.rule: Host(`traefik.cocochino.cafe`) && PathPrefix(`/api`)
-      traefik.http.routers.api.service: api@internal
-      # Dashboard & Api middlewares
-      traefik.http.routers.dashboard.middlewares: auth
-      traefik.http.routers.api.middlewares: auth
-      # Dashboard & Api TLS
-      traefik.http.routers.dashboard.tls: true
-      traefik.http.routers.dashboard.tls.certresolver: letsencrypt
-      traefik.http.routers.api.tls: true
-      traefik.http.routers.api.tls.certresolver: letsencrypt
+      traefik.http.routers.traefik.rule: Host(`traefik.${ROOT_DOMAIN}`)
+      traefik.http.routers.traefik.service: api@internal
+      # traefik.http.routers.api.rule: Host(`traefik.cocochino.cafe`) && PathPrefix(`/api`)
+      # traefik.http.routers.api.service: api@internal
+      # # Dashboard & Api middlewares
+      # traefik.http.routers.dashboard.middlewares: auth
+      # traefik.http.routers.api.middlewares: auth
+      # # Dashboard & Api TLS
+      # traefik.http.routers.dashboard.tls: true
+      # traefik.http.routers.dashboard.tls.certresolver: letsencrypt
+      # traefik.http.routers.api.tls: true
+      # traefik.http.routers.api.tls.certresolver: letsencrypt
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
