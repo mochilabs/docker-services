@@ -16,7 +16,7 @@ services:
       - .env
     # Enables the web UI and tells Traefik to listen to docker
     command:
-      - "--log.level=INFO"
+      - "--log.level=DEBUG"
       # Traefik address, secure address
       - --providers.docker
       - --entrypoints.web.address=:80
