@@ -40,15 +40,6 @@ services:
     labels:
       # Enable Traefik
       traefik.enable: true
-      # Router traefik dashboard
-      traefik.http.routers.traefik.rule: Host(`traefik.cocochino.cafe`)
-      traefik.http.routers.traefik.entrypoints: websecure
-      traefik.http.routers.traefik.service: api@internal
-      traefik.http.routers.traefik.tls: true
-      traefik.http.routers.traefik.tls.certresolver: letsencrypt
-      traefik.http.routers.traefik.middlewares: traefik-dashboard-auth
-      # Basic auth for traefik dashboard
-      traefik.http.middlewares.traefik-dashboard-auth.basicauth.users: ${TRAEFIK_AUTH_USER}:${TRAEFIK_AUTH_PASS}
       # Global redirects to https
       traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
       traefik.http.routers.http-catchall.entrypoints: web
@@ -56,10 +47,20 @@ services:
       # Redirect to https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
 
+      # Router traefik dashboard
+      traefik.http.routers.traefik.rule: Host(`traefik.cocochino.cafe`)
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.tls: true
+      traefik.http.routers.traefik.tls.certresolver: letsencrypt
+      traefik.http.routers.traefik.middlewares: traefik-dashboard-auth
+
+      # Basic auth for traefik dashboard
+      traefik.http.middlewares.traefik-dashboard-auth.basicauth.users: ${TRAEFIK_AUTH_USER}:${TRAEFIK_AUTH_PASS}
+
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
       # Lets encrypt
       - ./letsencrypt:/letsencrypt
     restart: always
-  
