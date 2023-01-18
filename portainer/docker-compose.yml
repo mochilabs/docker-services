@@ -25,12 +25,6 @@ services:
       # Portainer data volume
       - portainer_data:/data
     restart: always
-    networks:
-      - default
-
+    
 volumes:
   portainer_data:
-
-networks:
-  default:
-    name: traefik-reverse-proxy
