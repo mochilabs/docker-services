@@ -8,10 +8,11 @@ services:
       traefik.enable: true
       traefik.http.routers.portainer.rule: Host(`portainer.cocochino.cafe`)
       traefik.http.routers.portainer.entrypoint: websecure
+      traefik.http.routers.portainer.tls: true
       traefik.http.routers.portainer.tls.certresolver: letsencrypt
       traefik.http.routers.portainer.service: portainer-ce
-      traefik.http.routers.portainer.port: 9443
-    
+      traefik.http.services.portainer.loadbalancer.server.port: 9443
+
     # Official portainer-ce image
     image: portainer/portainer-ce:latest
     ports:
