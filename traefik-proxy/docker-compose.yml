@@ -24,8 +24,8 @@ services:
       - --api.dashboard=true
       - --api.insecure=true
       # Entrypoints
-      - --entrypoints.web.address=:80"
-      - --entrypoints.websecure.address=:443"
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
       # Global redirect to https
       - --entrypoints.web.http.redirections.entryPoint.to=websecure
       - --entrypoints.web.http.redirections.entryPoint.scheme=https
