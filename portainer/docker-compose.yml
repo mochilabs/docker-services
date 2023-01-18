@@ -3,7 +3,7 @@ version: '3'
 services:
   portainer-ce:
     env_file:
-      - ../traefik/.env
+      - ../traefik-proxy/.env
     # Traefik reverse proxy will handle https traffic and redirect to portainer web ui
     labels:
       # Portainer frontend will be available at https://portainer.cocochino.cafe
