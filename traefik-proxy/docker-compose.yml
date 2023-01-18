@@ -23,7 +23,6 @@ services:
       - --entrypoints.websecure.address=:443
       - --api.dashboard=true
       # Lets encrypt cert resolver
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}"
