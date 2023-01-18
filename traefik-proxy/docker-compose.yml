@@ -6,7 +6,7 @@ services:
     image: traefik:v2.9
     # Traefik health check
     healthcheck:
-      test: wget --quiet --tries=1 --spider https://127.0.0.1/api/rawdata || exit 1
+      test: wget --quiet --tries=1 --spider https://traefik.cocochino.cafe/api/rawdata || exit 1
       interval: 10s
       timeout: 1s
       retries: 3
@@ -18,11 +18,12 @@ services:
     command:
       - "--log.level=DEBUG"
       # Traefik address, secure address
-      - --providers.docker
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --api.dashboard=true
+      - "--providers.docker"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--api.dashboard=true"
       # Lets encrypt cert resolver
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}"
@@ -39,6 +40,13 @@ services:
     labels:
       # Enable Traefik
       traefik.enable: true
+
+      # Router traefik dashboard (http)
+      traefik.http.routers.dashboard.entrypoints: web
+      traefik.http.routers.dashboard.middlewares: traefik-dashboard-auth
+      traefik.http.routers.dashboard.rule: Host(`traefik.cocochino.cafe`)
+      traefik.http.routers.dashboard.service: api@internal
+
       # Router traefik dashboard (https)
       traefik.http.routers.dashboard-https.entrypoints: web
       traefik.http.routers.dashboard-https.middlewares: traefik-dashboard-auth
@@ -56,9 +64,11 @@ services:
       # Lets encrypt
       - ./letsencrypt:/letsencrypt
     restart: always
+    networks:
+      - 'traefik-reverse-proxy'
 
 # Reverse proxy network
 networks:
-  default:
+  traefik-reverse-proxy:
     internal: false
     name: traefik-reverse-proxy
