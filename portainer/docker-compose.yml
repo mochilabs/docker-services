@@ -11,12 +11,12 @@ services:
       # Router portainer (http)
       traefik.http.routers.portainer.rule: Host(`portainer.cocochino.cafe`)
       traefik.http.routers.portainer.entrypoints: web
-      traefik.http.router.portainer.middlewares: redirect-to-https
+      traefik.http.routers.portainer.middlewares: redirect-to-https
 
       # Router portainer (https)
       traefik.http.routers.portainer-https.rule: Host(`portainer.cocochino.cafe`)
       traefik.http.routers.portainer-https.entrypoints: websecure
-      traefik.http.routers.portainer-https.service: portainer-ce
+      traefik.http.routers.portainer-https.service: portainer-https
       traefik.http.routers.portainer-https.tls: true
       traefik.http.routers.portainer-https.tls.certresolver: letsencrypt
       traefik.http.services.portainer-https.loadbalancer.server.port: 9000
