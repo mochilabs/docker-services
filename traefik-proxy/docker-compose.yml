@@ -18,42 +18,42 @@ services:
     command:
       - "--log.level=INFO"
       # Traefik address, secure address
+      - --providers.docker
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-      - --api.insecure=true
       - --api.dashboard=true
-      - --providers.docker
       # Lets encrypt cert resolver
-      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      # Global redirect to https
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
     ports:
       # The HTTP port
       - "80:80"
       # The HTTPS port
       - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
     # Labels for traefik
     labels:
       # Enable Traefik
       traefik.enable: true
-      # Global redirects to https
-      traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
-      traefik.http.routers.http-catchall.entrypoints: web
-      traefik.http.routers.http-catchall.middlewares: redirect-to-https
-      # Redirect to https
-      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
 
-      # Router traefik dashboard
-      traefik.http.routers.traefik.rule: Host(`traefik.cocochino.cafe`)
-      traefik.http.routers.traefik.entrypoints: websecure
-      traefik.http.routers.traefik.service: api@internal
-      traefik.http.routers.traefik.tls: true
-      traefik.http.routers.traefik.tls.certresolver: letsencrypt
-      traefik.http.routers.traefik.middlewares: traefik-dashboard-auth
+      # Router traefik dashboard (http)
+      traefik.http.routers.dashboard.entrypoints: web
+      traefik.http.routers.dashboard.middlewares: traefik-dashboard-auth
+      traefik.http.routers.dashboard.rule: Host(`traefik.cocochino.cafe`)
+      traefik.http.routers.dashboard.service: api@internal
+      
+      # Router traefik dashboard (https)
+      traefik.http.routers.dashboard-https.entrypoints: websecure
+      traefik.http.routers.dashboard-https.middlewares: traefik-dashboard-auth
+      traefik.http.routers.dashboard-https.rule: Host(`traefik.cocochino.cafe`)
+      traefik.http.routers.dashboard-https.tls: true
+      traefik.http.routers.dashboard-https.tls.certresolver: letsencrypt
+      traefik.http.routers.dashboard-https.service: api@internal
 
       # Basic auth for traefik dashboard
       traefik.http.middlewares.traefik-dashboard-auth.basicauth.users: ${TRAEFIK_AUTH_USER}:${TRAEFIK_AUTH_PASS}
@@ -64,3 +64,9 @@ services:
       # Lets encrypt
       - ./letsencrypt:/letsencrypt
     restart: always
+
+# Reverse proxy network
+networks:
+  default:
+    internal: false
+    name: traefik-reverse-proxy
