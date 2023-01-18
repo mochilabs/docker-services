@@ -41,9 +41,10 @@ services:
       # Enable Traefik
       traefik.enable: true
       # Router traefik dashboard
-      traefik.http.routers.traefik.rule: Host(`traefik.cocochino.cafe`) && PathPrefix(`/api`, `/dashboard`)
+      traefik.http.routers.traefik.rule: Host(`traefik.cocochino.cafe`)
       traefik.http.routers.traefik.entrypoints: websecure
       traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.tls: true
       traefik.http.routers.traefik.tls.certresolver: letsencrypt
       traefik.http.routers.traefik.middlewares: traefik-dashboard-auth
       # Basic auth for traefik dashboard
