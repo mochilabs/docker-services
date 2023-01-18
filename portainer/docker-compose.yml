@@ -11,7 +11,7 @@ services:
       traefik.http.routers.portainer.tls: true
       traefik.http.routers.portainer.tls.certresolver: letsencrypt
       traefik.http.routers.portainer.service: portainer-ce
-      traefik.http.services.portainer.loadbalancer.server.port: 9443
+      traefik.http.services.portainer.loadbalancer.server.port: 9000
 
     # Official portainer-ce image
     image: portainer/portainer-ce:latest
@@ -19,7 +19,7 @@ services:
       # TCP tunnel port that portainer will communicate with edge agents
       - "8000:8000"
       # Portainer web ui port (https)
-      - "9443:9443"
+      - "9000:9000"
     volumes:
       # Portainer will communicate with docker daemon of host machine
       - /var/run/docker.sock:/var/run/docker.sock

@@ -62,9 +62,4 @@ services:
       # Lets encrypt
       - ./letsencrypt:/letsencrypt
     restart: always
-    networks:
-      - traefik-public
-
-networks:
-  traefik-public:
-    external: true
+  
