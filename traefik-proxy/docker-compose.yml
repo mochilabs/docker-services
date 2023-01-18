@@ -33,14 +33,21 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
     ports:
       # The HTTP port
-      - "80:80"
+      - target: 80
+        published: 80
+        mode: host
       # The HTTPS port
-      - "443:443"
+      - target: 443
+        published: 443
+        mode: host
     # Labels for traefik
     labels:
       # Enable Traefik
       traefik.enable: true
       traefik.docker.network: traefik-reverse-proxy
+
+      # Basic auth for traefik dashboard
+      traefik.http.middlewares.traefik-dashboard-auth.basicauth.users: ${TRAEFIK_AUTH_USER}:${TRAEFIK_AUTH_PASS}
 
       # Middleware redirect-to-https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
@@ -58,9 +65,7 @@ services:
       traefik.http.routers.dashboard-https.tls: true
       traefik.http.routers.dashboard-https.tls.certresolver: letsencrypt
       traefik.http.routers.dashboard-https.service: api@internal
-
-      # Basic auth for traefik dashboard
-      traefik.http.middlewares.traefik-dashboard-auth.basicauth.users: ${TRAEFIK_AUTH_USER}:${TRAEFIK_AUTH_PASS}
+      traefik.http.services.dashboard-https.loadbalancer.server.port: 8080
 
     volumes:
       # So that Traefik can listen to the Docker events
@@ -68,7 +73,8 @@ services:
       # Lets encrypt
       - ./letsencrypt:/letsencrypt
     restart: always
-
+    networks:
+      - traefik-reverse-proxy
 # Reverse proxy network
 networks:
   traefik-reverse-proxy:
