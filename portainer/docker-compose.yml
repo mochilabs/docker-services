@@ -6,28 +6,19 @@ services:
     labels:
       # Portainer frontend will be available at https://portainer.cocochino.cafe
       traefik.enable: true
-
-      # Router portainer (http)
-      traefik.http.routers.portainer.entrypoints: web
-      traefik.http.routers.portainer.rule: Host(`portainer.cocochino.cafe`)
-      traefik.http.routers.portainer.service: portainer-ce
-      traefik.http.services.portainer.loadbalancer.server.port: 9000
-            
       # Router portainer (https)
       traefik.http.routers.portainer-https.entrypoints: websecure
       traefik.http.routers.portainer-https.rule: Host(`portainer.cocochino.cafe`)
       traefik.http.routers.portainer-https.service: portainer-ce
       traefik.http.routers.portainer-https.tls: true
       traefik.http.routers.portainer-https.tls.certresolver: letsencrypt
-      traefik.http.services.portainer-https.loadbalancer.server.port: 9443
+      traefik.http.services.portainer-https.loadbalancer.server.port: 9000
     # Official portainer-ce image
     image: portainer/portainer-ce:latest
     ports:
       # TCP tunnel port that portainer will communicate with edge agents
       - "8000:8000"
       - "9000:9000"
-      # Portainer web ui port (https)
-      - "9443:9443"
     volumes:
       # Portainer will communicate with docker daemon of host machine
       - /var/run/docker.sock:/var/run/docker.sock

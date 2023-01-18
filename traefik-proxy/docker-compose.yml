@@ -40,13 +40,6 @@ services:
     labels:
       # Enable Traefik
       traefik.enable: true
-
-      # Router traefik dashboard (http)
-      traefik.http.routers.dashboard.entrypoints: web
-      traefik.http.routers.dashboard.middlewares: traefik-dashboard-auth
-      traefik.http.routers.dashboard.rule: Host(`traefik.cocochino.cafe`)
-      traefik.http.routers.dashboard.service: api@internal
-      
       # Router traefik dashboard (https)
       traefik.http.routers.dashboard-https.entrypoints: websecure
       traefik.http.routers.dashboard-https.middlewares: traefik-dashboard-auth
