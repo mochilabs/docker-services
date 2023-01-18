@@ -10,13 +10,13 @@ services:
       # Router portainer (http)
       traefik.http.routers.portainer.entrypoints: web
       traefik.http.routers.portainer.rule: Host(`portainer.cocochino.cafe`)
-      traefik.http.routers.portainer.service: portainer
+      traefik.http.routers.portainer.service: portainer-ce
       traefik.http.services.portainer.loadbalancer.server.port: 9000
             
       # Router portainer (https)
       traefik.http.routers.portainer-https.entrypoints: websecure
-      traefik.http.routers.portainer-https.rule: Host(`traefik.cocochino.cafe`)
-      traefik.http.routers.portainer-https.service: api@internal
+      traefik.http.routers.portainer-https.rule: Host(`portainer.cocochino.cafe`)
+      traefik.http.routers.portainer-https.service: portainer-ce
       traefik.http.routers.portainer-https.tls: true
       traefik.http.routers.portainer-https.tls.certresolver: letsencrypt
       traefik.http.services.portainer-https.loadbalancer.server.port: 9443
@@ -34,11 +34,12 @@ services:
       # Portainer data volume
       - portainer_data:/data
     restart: always
+    networks:
+      - default
 
 volumes:
   portainer_data:
-  
+
 networks:
   default:
-    external: true
     name: traefik-reverse-proxy
