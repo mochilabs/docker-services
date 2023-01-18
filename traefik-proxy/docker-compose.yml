@@ -56,6 +56,10 @@ services:
       # Enable Traefik
       traefik.enable: true
       # Traefik dashboard
+      # Entrypoints
+      traefik.http.routers.dashboard.entrypoints: websecure
+      traefik.http.routers.api.entrypoints: websecure
+      # Middleware
       traefik.http.middlewares.auth.basicauth.users: ${TRAEFIK_AUTH}
       # Dashboard & Api Rule, Service
       traefik.http.routers.dashboard.rule: Host(`traefik.cocochino.cafe`)
