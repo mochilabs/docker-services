@@ -34,7 +34,11 @@ services:
       # Portainer data volume
       - portainer_data:/data
     restart: always
-    networks:
-      - traefik-reverse-proxy
+
 volumes:
   portainer_data:
+  
+networks:
+  default:
+    external: true
+    name: traefik-reverse-proxy
