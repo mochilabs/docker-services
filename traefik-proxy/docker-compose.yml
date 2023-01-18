@@ -6,7 +6,7 @@ services:
     image: traefik:v2.9
     # Traefik health check
     healthcheck:
-      test: wget --quiet --tries=1 --spider https://traefik.cocochino.cafe/api/rawdata || exit 1
+      test: wget --quiet --tries=1 --spider https://traefik.${ROOT_DOMAIN}/api/rawdata || exit 1
       interval: 10s
       timeout: 1s
       retries: 3
@@ -16,21 +16,28 @@ services:
       - .env
     # Enables the web UI and tells Traefik to listen to docker
     command:
+      # Enable debug mode
       - "--log.level=DEBUG"
-      # Traefik address, secure address
+      # Enable docker provider
       - "--providers.docker"
+      # Enable traefik dashboard
+      - "--api.dashboard=true"
+      # Entrypoints
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--api.dashboard=true"
-      # Lets encrypt cert resolver
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       # Global redirect to https
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      # Set up LetsEncrypt
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      # Set up the TLS configuration for our websecure listener
+      - --entrypoints.websecure.http.tls=true
+      - --entrypoints.websecure.http.tls.certResolver=letsencrypt
+      - --entrypoints.websecure.http.tls.domains[0].main=${ROOT_DOMAIN}
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.${ROOT_DOMAIN}
     ports:
       # The HTTP port
       - target: 80
@@ -46,20 +53,20 @@ services:
       traefik.enable: true
       traefik.docker.network: traefik-reverse-proxy
 
-      # Basic auth for traefik dashboard
-      traefik.http.middlewares.traefik-dashboard-auth.basicauth.users: ${TRAEFIK_AUTH_USER}:${TRAEFIK_AUTH_PASS}
-
       # Middleware redirect-to-https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
       traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: true
 
       # Router traefik dashboard (http)
-      traefik.http.routers.dashboard.rule: Host(`traefik.cocochino.cafe`)
+      traefik.http.routers.dashboard.rule: Host(`traefik.${ROOT_DOMAIN}`)
       traefik.http.routers.dashboard.entrypoints: web
       traefik.http.routers.dashboard.middlewares: redirect-to-https
 
+      # Basic auth for traefik dashboard
+      traefik.http.middlewares.traefik-dashboard-auth.basicauth.users: ${TRAEFIK_AUTH}
+
       # Router traefik dashboard (https)
-      traefik.http.routers.dashboard-https.rule: Host(`traefik.cocochino.cafe`)
+      traefik.http.routers.dashboard-https.rule: Host(`traefik.${ROOT_DOMAIN}`)
       traefik.http.routers.dashboard-https.entrypoints: websecure
       traefik.http.routers.dashboard-https.middlewares: traefik-dashboard-auth
       traefik.http.routers.dashboard-https.tls: true
@@ -73,9 +80,9 @@ services:
       # Lets encrypt
       - ./letsencrypt:/letsencrypt
     restart: always
-    networks:
-      - traefik-reverse-proxy
+
 # Reverse proxy network
 networks:
-  traefik-reverse-proxy:
+  default:
     external: true
+    name: traefik-reverse-proxy
