@@ -73,9 +73,8 @@ services:
       traefik.http.routers.dashboard-https.entrypoints: websecure
       traefik.http.routers.dashboard-https.middlewares: traefik-dashboard-auth
       traefik.http.routers.dashboard-https.service: api@internal
-      traefik.http.routers.dashboard-https.tls: true
       traefik.http.routers.dashboard-https.tls.certresolver: letsencrypt
-      # traefik.http.services.dashboard-https.loadbalancer.server.port: 8080
+      traefik.http.services.dashboard-https.loadbalancer.server.port: 8080
 
     volumes:
       # So that Traefik can listen to the Docker events
