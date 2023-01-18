@@ -6,11 +6,6 @@ services:
     labels:
       # Portainer frontend will be available at https://portainer.cocochino.cafe
       traefik.enable: true
-      # Router traefik dashboard (http)
-      traefik.http.routers.portainer.entrypoints: web
-      traefik.http.routers.portainer.rule: Host(`portainer.cocochino.cafe`)
-      traefik.http.routers.portainer.service: portainer-ce
-      traefik.http.services.portainer.loadbalancer.server.port: 9000
 
       # Router portainer (https)
       traefik.http.routers.portainer-https.entrypoints: websecure
@@ -19,6 +14,7 @@ services:
       traefik.http.routers.portainer-https.tls: true
       traefik.http.routers.portainer-https.tls.certresolver: letsencrypt
       traefik.http.services.portainer-https.loadbalancer.server.port: 9000
+      
     # Official portainer-ce image
     image: portainer/portainer-ce:latest
     ports:
@@ -31,8 +27,6 @@ services:
       # Portainer data volume
       - portainer_data:/data
     restart: always
-    networks:
-      - traefik-reverse-proxy
 
 volumes:
   portainer_data:

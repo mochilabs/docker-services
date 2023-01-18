@@ -39,16 +39,10 @@ services:
     # Labels for traefik
     labels:
       # Enable Traefik
-      traefik.enable: true
-
-      # Router traefik dashboard (http)
-      traefik.http.routers.dashboard.entrypoints: web
-      traefik.http.routers.dashboard.middlewares: traefik-dashboard-auth
-      traefik.http.routers.dashboard.rule: Host(`traefik.cocochino.cafe`)
-      traefik.http.routers.dashboard.service: api@internal
+      traefik.enable: true\
 
       # Router traefik dashboard (https)
-      traefik.http.routers.dashboard-https.entrypoints: web
+      traefik.http.routers.dashboard-https.entrypoints: websecure
       traefik.http.routers.dashboard-https.middlewares: traefik-dashboard-auth
       traefik.http.routers.dashboard-https.rule: Host(`traefik.cocochino.cafe`)
       traefik.http.routers.dashboard-https.tls: true
@@ -64,11 +58,8 @@ services:
       # Lets encrypt
       - ./letsencrypt:/letsencrypt
     restart: always
-    networks:
-      - 'traefik-reverse-proxy'
 
 # Reverse proxy network
 networks:
   traefik-reverse-proxy:
-    internal: false
-    name: traefik-reverse-proxy
+    external: true
