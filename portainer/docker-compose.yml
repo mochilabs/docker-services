@@ -10,11 +10,6 @@ services:
       traefik.enable: true
       traefik.docker.network: traefik-reverse-proxy
 
-      # Router portainer (http)
-      traefik.http.routers.portainer.rule: Host(`portainer.${ROOT_DOMAIN}`)
-      traefik.http.routers.portainer.entrypoints: web
-      traefik.http.routers.portainer.middlewares: redirect-to-https
-
       # Router portainer (https)
       traefik.http.routers.portainer-https.rule: Host(`portainer.${ROOT_DOMAIN}`)
       traefik.http.routers.portainer-https.entrypoints: websecure

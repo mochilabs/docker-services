@@ -72,7 +72,7 @@ services:
       traefik.http.routers.dashboard-https.rule: Host(`traefik.${ROOT_DOMAIN}`)
       traefik.http.routers.dashboard-https.entrypoints: websecure
       traefik.http.routers.dashboard-https.middlewares: traefik-dashboard-auth
-      traefik.http.routers.dashboard-https.service: api@internal
+      traefik.http.routers.dashboard-https.service: dashboard-https
       traefik.http.routers.dashboard-https.tls.certresolver: letsencrypt
       traefik.http.services.dashboard-https.loadbalancer.server.port: 8080
 
