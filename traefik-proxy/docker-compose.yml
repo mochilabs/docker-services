@@ -6,7 +6,7 @@ services:
     image: traefik:v2.9
     # Traefik health check
     healthcheck:
-      test: wget --quiet --tries=1 --spider http://ping.127.0.0.1.nip.io/ping || exit 1
+      test: wget --quiet --tries=1 --spider https://127.0.0.1/api/rawdata || exit 1
       interval: 10s
       timeout: 1s
       retries: 3
