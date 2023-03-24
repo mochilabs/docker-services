@@ -1,0 +1,32 @@
+version: "3"
+# Services
+services:
+  # MongoDB
+  mongodb:
+    labels:
+      traefik.enable: false
+    #ports:
+    #  - "27017:27017"
+    image: mongo:latest
+    restart: always
+    env_file:
+      - .env.mongodb
+    volumes:
+      - mongodb_datadir:/data/db
+  # MariaDB
+  mariadb:
+    labels:
+      traefik.enable: false
+    #ports:
+    #  - "3306:3306"
+    image: mariadb:latest
+    restart: always
+    env_file:
+      - .env.mariadb
+    volumes:
+      - mariadb_datadir:/var/lib/mysql
+
+#Volumes
+volumes:
+  mongodb_datadir:
+  mariadb_datadir:

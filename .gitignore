@@ -1,2 +1,4 @@
 **/.env
+**/.env.mariadb
+**/.env.mongodb
 **/acme.json
