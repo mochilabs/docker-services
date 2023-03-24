@@ -5,8 +5,8 @@ services:
   mongodb:
     labels:
       traefik.enable: false
-    #ports:
-    #  - "27017:27017"
+    ports:
+      - "127.0.0.1:27017:27017"
     image: mongo:latest
     restart: always
     env_file:
@@ -17,8 +17,8 @@ services:
   mariadb:
     labels:
       traefik.enable: false
-    #ports:
-    #  - "3306:3306"
+    ports:
+      - "127.0.0.1:3306:3306"
     image: mariadb:latest
     restart: always
     env_file:
