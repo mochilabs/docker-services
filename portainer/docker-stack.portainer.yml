@@ -18,7 +18,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       # Portainer swarm agent network
-      - agent_network
+      - portainer-agent-network
       - traefik-reverse-proxy
     deploy:
       mode: replicated
@@ -37,10 +37,10 @@ services:
         - traefik.http.services.portainer-https.loadbalancer.server.port=9000
 
 networks:
-  agent_network:
+  portainer-agent-network:
     driver: overlay
     attachable: true
-    name: portainer_agent_network
+    name: portainer-agent-network
   traefik-reverse-proxy:
     driver: overlay
     external: true
