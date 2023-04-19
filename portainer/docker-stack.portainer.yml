@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  portainer-ee:
+    # Latest portainer-ee image
+    image: portainer/portainer-ee:latest
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    ports:
+      # Portainer ports
+      - target: 8000 # TCP Tunnel communicate with edge agents
+        published: 8000
+      - target: 9000 # https port for portainer frontend
+        published: 9000
+    volumes:
+      # Portainer data volume
+      - portainer_data:/data
+      # Portainer will communicate with docker daemon
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      # Portainer swarm agent network
+      - agent_network
+      - traefik-reverse-proxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        # Portainer frontend will be avaliable at https://portainer.cocochino.cafe
+        - traefik.enable=true
+        # Portainer Router
+        - traefik.http.routers.portainer-https.rule=Host(`portainer.${ROOT_DOMAIN}`)
+        - traefik.http.routers.portainer-https.entrypoints=websecure
+        - traefik.http.routers.portainer-https.tls.certresolver=letsencrypt
+        - traefik.http.routers.portainer-https.service=portainer-https
+        # Traefik reverse proxy will handle traffic and redirect to portainer web ui
+        - traefik.http.services.portainer-https.loadbalancer.server.port=9000
+
+networks:
+  agent_network:
+    driver: overlay
+    attachable: true
+    name: portainer_agent_network
+  traefik-reverse-proxy:
+    driver: overlay
+    external: true
+
+volumes:
+  portainer_data:

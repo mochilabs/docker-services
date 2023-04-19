@@ -1,0 +1,84 @@
+version: '3.9'
+
+networks:
+  traefik-reverse-proxy:
+    driver: overlay
+    attachable: true
+    name: traefik-reverse-proxy
+
+services:
+  traefik-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.9
+    # Traefik health check
+    healthcheck:
+      test: ['CMD', 'traefik', 'healthcheck', '--ping']
+      interval: 10s
+      timeout: 1s
+      retries: 3
+      start_period: 10s
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      # Enable debug mode
+      - --log.level=DEBUG
+      # Enable docker provider
+      - --providers.docker
+      - --providers.docker.swarmMode=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.network=traefik-reverse-proxy
+      # Enable traefik dashboard
+      - --api.dashboard=true
+      - --ping=true
+      # Entrypoints
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # Global redirect to https
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      # Set up LetsEncrypt
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_CERT_RESOLVER_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      # Set up the TLS configuration for our websecure listener
+      - --entrypoints.websecure.http.tls=true
+      - --entrypoints.websecure.http.tls.certResolver=letsencrypt
+      - --entrypoints.websecure.http.tls.domains[0].main=${ROOT_DOMAIN}
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.${ROOT_DOMAIN}
+    environment:
+      CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_DNS_API_TOKEN}
+      CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL}
+    networks:
+      - traefik-reverse-proxy
+    deploy:
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+      # Labels for traefik
+      labels:
+        # Enable Traefik
+        - traefik.enable=true
+        #Traefik dashboard & Api Rule, Service
+        - traefik.http.routers.traefik.entrypoints=websecure
+        - traefik.http.routers.traefik.rule=Host(`traefik.${ROOT_DOMAIN}`)
+        - traefik.http.routers.traefik.service=api@internal
+        - traefik.http.routers.traefik.tls=true
+        - traefik.http.routers.traefik.tls.options=default
+        - traefik.http.routers.traefik.tls.certresolver=letsencrypt
+        - traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_AUTH}
+        - traefik.http.routers.traefik.middlewares=traefik-auth
+        - traefik.http.services.traefik.loadbalancer.server.port=80
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Lets encrypt
+      - ./letsencrypt:/letsencrypt
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
