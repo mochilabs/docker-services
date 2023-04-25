@@ -25,7 +25,6 @@ services:
       placement:
         constraints:
           - node.platform.os == linux
-
 networks:
   portainer-agent-network:
     external: true
