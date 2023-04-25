@@ -4,8 +4,6 @@ services:
   usagi:
     # ghcr.io image registry
     image: ghcr.io/sirubot/usagi:latest
-    env_file:
-      - .env
     hostname: "{{.Node.Hostname}}-{{.Service.Name}}"
     ports:
       # Next.JS 3000 port
