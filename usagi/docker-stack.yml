@@ -4,8 +4,11 @@ services:
   usagi:
     # ghcr.io image registry
     image: ghcr.io/sirubot/usagi:latest
-    env_file:
-      - .env
+    environment:
+      - DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID
+      - DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET
+      - NEXTAUTH_URL=$NEXTAUTH_URL
+      - NEXTAUTH_SECRET=$NEXTAUTH_SECRET
     hostname: "{{.Node.Hostname}}-{{.Service.Name}}"
     ports:
       # Next.JS 3000 port
