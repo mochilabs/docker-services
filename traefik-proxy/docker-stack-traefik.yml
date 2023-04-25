@@ -7,7 +7,7 @@ networks:
     name: traefik-reverse-proxy
 
 services:
-  traefik-proxy:
+  traefik_proxy:
     # The official v2 Traefik docker image
     image: traefik:v2.9
     # Traefik health check
